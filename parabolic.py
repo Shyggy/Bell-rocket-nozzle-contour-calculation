@@ -38,7 +38,7 @@ x_unique,idx=np.unique(x_full,return_index=True) #deleting duplicates from vecto
 y_full=np.hstack((y_c,y_i,y_parabola)).ravel()
 y_unique=y_full[idx] #deleting duplicates from vector
 
-with open('Nozzle.csv','w',newline='') as csvfile:
+with open('parabolic_nozzle.csv','w',newline='') as csvfile:
     coordinates_writer=csv.writer(csvfile,delimiter=';')
     for i in range(len(x_unique)):
         coordinates_writer.writerow([x_unique[i],y_unique[i],0])
@@ -52,5 +52,5 @@ plt.ylabel('Współrzędna y [mm]')
 plt.grid(True,which='major',alpha=0.6)
 plt.grid(True,which='minor',alpha=0.3)
 plt.minorticks_on()
-plt.savefig('Nozzle.png',bbox_inches='tight')
+plt.savefig('parabolic_nozzle.png',bbox_inches='tight')
 plt.show()
