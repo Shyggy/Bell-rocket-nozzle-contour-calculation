@@ -13,8 +13,9 @@ def flow_point_finder(theta1,theta2,theta3,mu1,mu2,mu3,x1,y1,x2,y2): #physical l
     pos_char_slope=np.tan(0.5*(theta2+theta3)+0.5*(mu2+mu3))
     neg_char_constant=y1-neg_char_slope*x1
     pos_char_constant=y2-pos_char_slope*x2
-    x=(pos_char_constant-neg_char_constant)/(neg_char_slope-pos_char_slope)
-    y=pos_char_slope*x+pos_char_constant
+    x=(neg_char_constant-pos_char_constant)/(pos_char_slope-neg_char_slope)
+    y=neg_char_slope*x+neg_char_constant
+    print(neg_char_slope,pos_char_slope)
     return x,y
 
 def node_volume_finder(n_characteristics):
@@ -102,21 +103,85 @@ def kernel_node_value_calculator(n_char,theta_start,gamma,Mach_exit): #function 
             nu_values[i]=0.5*(K_minus_values[i]-K_plus_values[i])
     #Mach number and angle calculation
     M_values=Hall_IPM_fun(nu_values,gamma) #Mach numbers at each node
-    mu_values=np.asin(1/M_values)
-    #output creation
-    output=np.column_stack((np.rad2deg(K_minus_values),np.rad2deg(K_plus_values),np.rad2deg(theta_values),np.rad2deg(nu_values),np.rad2deg(mu_values),M_values))
-    return output
+    mu_values=Mach_angle_calculator(M_values)
+    #point type identifier allocation
+    point_type=[]
+    for i in range(0,n_nodes):
+        if theta_values[i]==0. or theta_values[i]==theta_start:
+            point_type.append('centerline') #centerline point
+        else:
+            point_type.append('flow') #internal flow point
+    return{
+        'K_minus':K_minus_values,
+        'K_plus':K_plus_values,
+        'theta':theta_values,
+        'nu':nu_values,
+        'mu':mu_values,
+        'M':M_values,
+        'point_type':point_type
+    }
     
+def point_location_finder(n_char,theta_start,kernel_flow_output):
+    n_nodes=node_volume_finder(n_char) #number of nodes in the characteristic mesh
+    theta_values=kernel_flow_output["theta"]
+    nu_values=kernel_flow_output["nu"]
+    mu_values=kernel_flow_output["mu"]
+    point_type=kernel_flow_output["point_type"]
+    x_values=[]
+    y_values=[]
+##############################################################################
+    #calculation of the points on the first characteristic line
+    x_init,y_init,theta_init,mu_init=0.,1.,nu_values[n_nodes-1]/2,np.deg2rad(90)
+    x_values.append(x_init)
+    y_values.append(y_init)
+    theta_values=np.insert(theta_values,0,theta_init)
+    mu_values=np.insert(mu_values,0,mu_init)
+    point_type=np.insert(point_type,0,'init')
+    plt.figure()
+    for i in range(0,n_char-1):
+        if point_type[i+1]=='centerline':
+            x,y=centerline_point_finder(theta_values[i+1],theta_values[i+1],mu_values[i+1],mu_values[i+1],x_init,y_init)
+            plt.plot([x_init,x],[y_init,y],ls='dashed')    
+            x_values.append(x)
+            y_values.append(y)
+        elif point_type[i+1]=='flow':
+            x,y=flow_point_finder(theta_values[i+1],theta_values[i],theta_values[i+1],mu_values[i+1],mu_values[i],mu_values[i+1],0.,1.,x_values[i],y_values[i])
+            plt.plot([x_init,x],[y_init,y],ls='dashed')
+            x_values.append(x)
+            y_values.append(y)
+    k=idx_init=n_char-1
+    while k>0:
+        for i in range(1,k+1):
+            if point_type[idx_init+i]=='centerline':
+                x,y=centerline_point_finder(theta_values[idx_init+i-k],theta_values[idx_init+i],mu_values[idx_init+i-k],mu_values[idx_init+i],x_values[idx_init+i-k],y_values[idx_init+i-k])
+                plt.plot([x_values[idx_init+i-k],x],[y_values[idx_init+i-k],y],ls='dotted')    
+                x_values.append(x)
+                y_values.append(y)
+            elif point_type[idx_init+i]=='flow':
+                x,y=flow_point_finder(theta_values[idx_init+i-k],theta_values[idx_init+i-1],theta_values[idx_init+i],mu_values[idx_init+i-k],mu_values[idx_init+i-1],mu_values[idx_init+i],x_values[idx_init+i-k],y_values[idx_init+i-k],x_values[idx_init+i-1],y_values[idx_init+i-1])
+                plt.plot([x_values[idx_init+i-k],x],[y_values[idx_init+i-k],y],ls='dashdot')
+                plt.plot([x_values[idx_init+i-1],x],[y_values[idx_init+i-1],y],ls='dashdot')
+                x_values.append(x)
+                y_values.append(y)
+        idx_init+=k
+        k-=1
 
-n_char=int(7) #number of characteristic lines to be drawn
+
+
+    output=np.column_stack((x_values,y_values))
+    #plt.plot(x_values,y_values,marker='.')
+    plt.show()
+    output=1
+    return output
+
+n_char=int(5) #number of characteristic lines to be drawn
 n_nodes=node_volume_finder(n_char) #number of nodes in the characteristic mesh
-x_0,y_0=0,1 #location of the first node
 M_e=2.4 #exit Mach number
 gamma=1.4 #specific heat ratio for exhaust gases
-theta_s=np.deg2rad(0.375) # first characteristic line flow angle in radians
-theta_e=PM_fun(M_e,gamma)/2 #exit flow angle in radians4
-init_theta_vect=np.linspace(theta_s,theta_e,n_char) #initial theta values for the characteristic lines
+theta_s=np.deg2rad(0.375) # first characteristic line flow angle in radians (degrees converted to radians)
 
 test=kernel_node_value_calculator(n_char,theta_s,gamma,M_e)
+test2=point_location_finder(n_char,theta_s,test)
 
-print(test)
+#print(test)
+print(test2)
