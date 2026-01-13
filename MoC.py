@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 
 def centerline_point_finder(theta1,theta2,mu1,mu2,x1,y1): #arg: theta1 value at a point through which the right runnin characteristics goes, theta2 - value at a point on a centerline
     neg_char_slope=np.tan(0.5*(theta1+theta2)-0.5*(mu1+mu2))
@@ -15,7 +16,15 @@ def flow_point_finder(theta1,theta2,theta3,mu1,mu2,mu3,x1,y1,x2,y2): #physical l
     pos_char_constant=y2-pos_char_slope*x2
     x=(neg_char_constant-pos_char_constant)/(pos_char_slope-neg_char_slope)
     y=neg_char_slope*x+neg_char_constant
-    print(neg_char_slope,pos_char_slope)
+    return x,y
+
+def wall_point_finder(theta1,theta2,mu2,x1,x2,y1,y2):
+    pos_char_slope=np.tan(theta2+mu2)
+    wall_slope=np.tan(0.5*(theta1+theta2))
+    pos_char_constant=y2-pos_char_slope*x2
+    wall_constant=y1-wall_slope*x1
+    x=(pos_char_constant-wall_constant)/(wall_slope-pos_char_slope)
+    y=wall_slope*x+wall_constant
     return x,y
 
 def node_volume_finder(n_characteristics):
@@ -121,67 +130,140 @@ def kernel_node_value_calculator(n_char,theta_start,gamma,Mach_exit): #function 
         'point_type':point_type
     }
     
-def point_location_finder(n_char,theta_start,kernel_flow_output):
-    n_nodes=node_volume_finder(n_char) #number of nodes in the characteristic mesh
+def point_location_finder(n_char,M_e,kernel_flow_output,kernel_number_indicator=False,show_plot=True):
     theta_values=kernel_flow_output["theta"]
-    nu_values=kernel_flow_output["nu"]
     mu_values=kernel_flow_output["mu"]
     point_type=kernel_flow_output["point_type"]
     x_values=[]
     y_values=[]
+    kernel_outer_x_values=[]
+    kernel_outer_y_values=[]
+    kernel_outer_theta_values=[]
+    kernel_outer_mu_values=[]
+    kernel_outer_idx_values=[]
+    wall_x_values=[]
+    wall_y_values=[]
 ##############################################################################
     #calculation of the points on the first characteristic line
-    x_init,y_init,theta_init,mu_init=0.,1.,nu_values[n_nodes-1]/2,np.deg2rad(90)
-    x_values.append(x_init)
-    y_values.append(y_init)
-    theta_values=np.insert(theta_values,0,theta_init)
-    mu_values=np.insert(mu_values,0,mu_init)
-    point_type=np.insert(point_type,0,'init')
+    x_init,y_init,theta_sharp=0.,1.,PM_fun(M_e,gamma)/2
     plt.figure()
-    for i in range(0,n_char-1):
-        if point_type[i+1]=='centerline':
-            x,y=centerline_point_finder(theta_values[i+1],theta_values[i+1],mu_values[i+1],mu_values[i+1],x_init,y_init)
-            plt.plot([x_init,x],[y_init,y],ls='dashed')    
-            x_values.append(x)
-            y_values.append(y)
-        elif point_type[i+1]=='flow':
-            x,y=flow_point_finder(theta_values[i+1],theta_values[i],theta_values[i+1],mu_values[i+1],mu_values[i],mu_values[i+1],0.,1.,x_values[i],y_values[i])
+    for i in range(0,n_char):
+        if point_type[i]=='centerline':
+            x,y=centerline_point_finder(theta_values[i],theta_values[i],mu_values[i],mu_values[i],x_init,y_init)
             plt.plot([x_init,x],[y_init,y],ls='dashed')
+            if kernel_number_indicator: 
+                plt.text(x+0.05,y,str(i))    
             x_values.append(x)
             y_values.append(y)
+        elif point_type[i]=='flow':
+            if i==n_char-1:
+                x,y=flow_point_finder(theta_values[i],theta_values[i-1],theta_values[i],mu_values[i],mu_values[i-1],mu_values[i],x_init,y_init,x_values[i-1],y_values[i-1])
+                plt.plot([x_init,x],[y_init,y],ls='dashed')
+                plt.plot([x_values[i-1],x],[y_values[i-1],y],ls='dashed')
+                if kernel_number_indicator: 
+                    plt.text(x+0.05,y,str(i)) 
+                x_values.append(x)
+                y_values.append(y)
+                kernel_outer_x_values.append(x)
+                kernel_outer_y_values.append(y)
+                kernel_outer_theta_values.append(theta_values[i])
+                kernel_outer_mu_values.append(mu_values[i])
+                kernel_outer_idx_values.append(i)
+            else:
+                x,y=flow_point_finder(theta_values[i],theta_values[i-1],theta_values[i],mu_values[i],mu_values[i-1],mu_values[i],x_init,y_init,x_values[i-1],y_values[i-1])
+                plt.plot([x_init,x],[y_init,y],ls='dashed')
+                plt.plot([x_values[i-1],x],[y_values[i-1],y],ls='dashed')
+                if kernel_number_indicator: 
+                    plt.text(x+0.05,y,str(i)) 
+                x_values.append(x)
+                y_values.append(y)
     k=idx_init=n_char-1
     while k>0:
         for i in range(1,k+1):
             if point_type[idx_init+i]=='centerline':
-                x,y=centerline_point_finder(theta_values[idx_init+i-k],theta_values[idx_init+i],mu_values[idx_init+i-k],mu_values[idx_init+i],x_values[idx_init+i-k],y_values[idx_init+i-k])
-                plt.plot([x_values[idx_init+i-k],x],[y_values[idx_init+i-k],y],ls='dotted')    
-                x_values.append(x)
-                y_values.append(y)
+                if i==k:
+                    x,y=centerline_point_finder(theta_values[idx_init+i-k],theta_values[idx_init+i],mu_values[idx_init+i-k],mu_values[idx_init+i],x_values[idx_init+i-k],y_values[idx_init+i-k])
+                    plt.plot([x_values[idx_init+i-k],x],[y_values[idx_init+i-k],y],ls='dashed')
+                    if kernel_number_indicator: 
+                        plt.text(x+0.05,y,str(idx_init+i)) 
+                    x_values.append(x)
+                    y_values.append(y)
+                    kernel_outer_x_values.append(x)
+                    kernel_outer_y_values.append(y)
+                    kernel_outer_theta_values.append(theta_values[idx_init+i])
+                    kernel_outer_mu_values.append(mu_values[idx_init+i])
+                    kernel_outer_idx_values.append(idx_init+i)
+                else:
+                    x,y=centerline_point_finder(theta_values[idx_init+i-k],theta_values[idx_init+i],mu_values[idx_init+i-k],mu_values[idx_init+i],x_values[idx_init+i-k],y_values[idx_init+i-k])
+                    plt.plot([x_values[idx_init+i-k],x],[y_values[idx_init+i-k],y],ls='dashed')
+                    if kernel_number_indicator: 
+                        plt.text(x+0.05,y,str(idx_init+i)) 
+                    x_values.append(x)
+                    y_values.append(y)
             elif point_type[idx_init+i]=='flow':
-                x,y=flow_point_finder(theta_values[idx_init+i-k],theta_values[idx_init+i-1],theta_values[idx_init+i],mu_values[idx_init+i-k],mu_values[idx_init+i-1],mu_values[idx_init+i],x_values[idx_init+i-k],y_values[idx_init+i-k],x_values[idx_init+i-1],y_values[idx_init+i-1])
-                plt.plot([x_values[idx_init+i-k],x],[y_values[idx_init+i-k],y],ls='dashdot')
-                plt.plot([x_values[idx_init+i-1],x],[y_values[idx_init+i-1],y],ls='dashdot')
-                x_values.append(x)
-                y_values.append(y)
+                if i==k:
+                    x,y=flow_point_finder(theta_values[idx_init+i-k],theta_values[idx_init+i-1],theta_values[idx_init+i],mu_values[idx_init+i-k],mu_values[idx_init+i-1],mu_values[idx_init+i],x_values[idx_init+i-k],y_values[idx_init+i-k],x_values[idx_init+i-1],y_values[idx_init+i-1])
+                    plt.plot([x_values[idx_init+i-k],x],[y_values[idx_init+i-k],y],ls='dashed')
+                    plt.plot([x_values[idx_init+i-1],x],[y_values[idx_init+i-1],y],ls='dashed')
+                    if kernel_number_indicator: 
+                        plt.text(x+0.05,y,str(idx_init+i-1)) 
+                    x_values.append(x)
+                    y_values.append(y)
+                    kernel_outer_x_values.append(x)
+                    kernel_outer_y_values.append(y)
+                    kernel_outer_theta_values.append(theta_values[idx_init+i])
+                    kernel_outer_mu_values.append(mu_values[idx_init+i])
+                    kernel_outer_idx_values.append(idx_init+i)
+                else:
+                    x,y=flow_point_finder(theta_values[idx_init+i-k],theta_values[idx_init+i-1],theta_values[idx_init+i],mu_values[idx_init+i-k],mu_values[idx_init+i-1],mu_values[idx_init+i],x_values[idx_init+i-k],y_values[idx_init+i-k],x_values[idx_init+i-1],y_values[idx_init+i-1])
+                    plt.plot([x_values[idx_init+i-k],x],[y_values[idx_init+i-k],y],ls='dashed')
+                    plt.plot([x_values[idx_init+i-1],x],[y_values[idx_init+i-1],y],ls='dashed')
+                    if kernel_number_indicator: 
+                        plt.text(x+0.05,y,str(idx_init+i-1)) 
+                    x_values.append(x)
+                    y_values.append(y)
         idx_init+=k
         k-=1
-
-
+    #########################################################################################################################
+    print(np.rad2deg(theta_sharp))
+    wall_x_buf,wall_y_buf=wall_point_finder(theta_sharp,kernel_outer_theta_values[0],kernel_outer_mu_values[0],x_init,kernel_outer_x_values[0],y_init,kernel_outer_y_values[0])
+    plt.plot([x_init,wall_x_buf],[y_init,wall_y_buf],ls='solid',color='black')
+    plt.plot([wall_x_buf,kernel_outer_x_values[0]],[wall_y_buf,kernel_outer_y_values[0]],ls='dashed')
+    wall_x_values.append(wall_x_buf)
+    wall_y_values.append(wall_y_buf)
+    for i in range(1,n_char):
+        wall_x_buf,wall_y_buf=wall_point_finder(kernel_outer_theta_values[i-1],kernel_outer_theta_values[i],kernel_outer_mu_values[i],wall_x_values[i-1],kernel_outer_x_values[i],wall_y_values[i-1],kernel_outer_y_values[i])
+        wall_x_values.append(wall_x_buf)
+        wall_y_values.append(wall_y_buf)
+        plt.plot([wall_x_values[i],wall_x_values[i-1]],[wall_y_values[i],wall_y_values[i-1]],ls='solid',color='black')
+        plt.plot([wall_x_values[i],kernel_outer_x_values[i]],[wall_y_values[i],kernel_outer_y_values[i]],ls='dashed')
 
     output=np.column_stack((x_values,y_values))
-    #plt.plot(x_values,y_values,marker='.')
-    plt.show()
-    output=1
-    return output
+    plt.grid(True,which='major',ls='solid',alpha=0.6)
+    plt.grid(True,which='minor',ls='dotted',alpha=0.3)
+    plt.minorticks_on()
+    plt.ylabel('y/y_throat')
+    plt.xlabel('x/y_throat')
+    plt.title('Minimal length 2D nozzle contour using MoC')
+    if show_plot:
+        plt.show()
+    #return output
+    return{
+        'nozzle_contour': np.column_stack((np.r_[x_init, wall_x_values],np.r_[y_init, wall_y_values])),
+        'kernel_points':output
+    }
 
-n_char=int(5) #number of characteristic lines to be drawn
-n_nodes=node_volume_finder(n_char) #number of nodes in the characteristic mesh
+################################################################################################################################################
+#program run
+n_char=int(50) #number of characteristic lines to be drawn
 M_e=2.4 #exit Mach number
 gamma=1.4 #specific heat ratio for exhaust gases
 theta_s=np.deg2rad(0.375) # first characteristic line flow angle in radians (degrees converted to radians)
+number_notes=False
 
-test=kernel_node_value_calculator(n_char,theta_s,gamma,M_e)
-test2=point_location_finder(n_char,theta_s,test)
-
-#print(test)
-print(test2)
+run=point_location_finder(n_char,M_e,kernel_node_value_calculator(n_char,theta_s,gamma,M_e),number_notes)
+print(run['nozzle_contour'])
+with open('MOC_nozzle.csv','w',newline='') as csvfile:
+    coordinates_writer=csv.writer(csvfile,delimiter=';')
+    for i in range(len(run['nozzle_contour'])):
+        coordinates_writer.writerow([run['nozzle_contour'][i,0],run['nozzle_contour'][i,1],0])
