@@ -2,8 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-r_t=5 #throat radius in mm
-r_e=23 #exit plane radius in mm
+M_e=2.4 #desired exit Mach number
+gamma=1.4 #specific heat ratio
+r_t=1 #throat radius in mm
+ #throat area in mm^2
+A2=r_t / M_e * (2 / (gamma + 1) * (1 + (gamma - 1) / 2 * M_e**2)) ** ((gamma + 1) / (2 * (gamma - 1))) #area ratio as per isentropic flow relations
+
+r_e=A2 #exit plane radius in mm
 i_theta=np.deg2rad(26)#typical solid rocket inflation angle as per Sutton
 e_theta=np.deg2rad(16)#typical solid rocket exit angle as per Sutton
 
