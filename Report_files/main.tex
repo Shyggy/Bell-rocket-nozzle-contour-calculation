@@ -1,0 +1,218 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english,polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[absolute,overlay]{textpos}
+\usepackage[margin=1in]{geometry}
+\usepackage{tabto}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{gensymb}
+\usepackage{caption}
+\usepackage{textcomp}
+\usepackage{adjustbox}
+\usepackage{rotating}
+\usepackage{tikz}
+\usepackage{url}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{wasysym}
+\usepackage{subcaption}
+
+\begin{document}
+\input{Title}
+\newpage
+\listoffigures
+\listoftables
+\newpage
+\section{Opis zagadnienia}
+\qquad W tym rozdziale przedstawione zostaną podstawowe informacje na temat dysz zbieżno-rozbieżnycch, ich zastosowania a także wyzwań pojawiających się podczas ich projektowania.
+\subsection{Dysza zbieżno-rozbieżna}
+\qquad Dysza zbieżno-rozbieżna jest specjalnym rodzajem kanału przepływowego, pozwalającym na przyspieszenie przepływającego przez nią płynu do prędkości naddźwiękowych, przy jego jednoczesnym rozprężeniu. W ogólności przepływ przez dyszę zbieżno-rozbieżną można podzielić na 3 etapy:
+\begin{enumerate}
+	\item Przepływ poddźwiękowy, mający miejsce w części zbieżnej dyszy, prędkość produktów spalania rośnie, ale nie osiąga jeszcze takich wartości, aby liczba Macha w przepływie wynosiła 1. 
+	\item Przepływ krytyczny, występujący w przekroju dyszy o najmniejszym polu, charakteryzuje się tym, liczba Macha osiąga tam wartość jedności oraz powstaje fala uderzeniowa.
+	\item Przepływ naddźwiękowy, w którym dochodzi do dalszego rozpędzania medium roboczego przy dalszym rozprężaniu.
+\end{enumerate}
+\par Dysze zbieżno-rozbieżne stanowią podstawę technologii silników odrzutowych, przy czym najczęściej wykorzystywane są w silnikach rakietowych. W napędach działających przy względnie wysokich ciśnieniach zewnętrznych najczęściej spotykanym kształtem części rozbieżnej dyszy jest stożek. Wynika to z łatwości wykonania oraz tego, że w takich warunkach gaz w dyszy nie musi być rozprężony do bardzo niskich wartości. Wraz ze spadkiem ciśnienia otoczenia zwiększa się obliczeniowy rozpręż w dyszy, a co za tym idzie zwiększa się jej przekrój wylotowy. Oznacza to, że gdyby w dyszy zaprojektowanej do pracy w wysokiej atmosferze ziemskiej lub w warunkach próżni zastosować stożkową część rozbieżną rozmiary dyszy, a co za tym idzie jej masa sprawiłyby, że jej zastosowanie mijałoby się z celem.
+\par W celu zaradzenia temu problemowi w latach 50 i 60 XX w. rozpoczęto zintensyfikowane prace nad metodą umożliwiającą wyznaczenie kształtu dyszy w której dochodziłoby do całkowitego rozprężenia gazów wylotowych, przy jednoczesnym minimalizowaniu jej długości. Metodą przydatną w tych staraniach okazała się metoda charakterystyk. Jej podstawy zostaną przybliżone w rozdziale poniżej.
+\section{Metoda charakterystyk}
+\qquad Metoda charakterystyk jest metodą analityczno-geometryczną, pozwalającą na przedstawienie skomplikowanych układów równań różniczkowych cząstkowych w sposób analityczny. U swojej podstawy polega ona na znajdowaniu tak zwanych linii charakterystyk, czyli takich linii wzdłuż których wartości opisujące przepływ (na przykład ciśnienie) są stałe, ale wzdłuż których pochodne tych wartości po współrzędnych geometrycznych są nieokreślone lub nieciągłe. W rozwiązaniach wykorzystujących metodę charakterystyk definiuje się dwa ich rodzaje - prawe (oznaczane $C_+$) oraz lewe (oznaczane $C_-$)\cite{Anderson}.
+\par Tak zdefiniowane linie charakterystyk nie umożliwiają jeszcze obliczenia przepływu - w celu ich dopełnienia stosowane są tzw. równania kompatybilności, które rozwiązywane są wzdłuż charakterystyk w celu obliczenia właściwości przepływu. Równania te przyjmują postaci:
+Wzdłuż lewej charakterystyki:
+\begin{equation}
+	\theta+\nu(M)=const=K_-
+\end{equation}
+Wzdłuż prawej charakterystyki:
+\begin{equation}
+\theta-\nu(M)=const=K_+
+\end{equation}
+\par Równania kompatybilności nie zawierają w sobie informacji na temat położenia geometrycznego linii charakterystyk, jednak mogą w prosty sposób zostać wykorzystane do wyznaczenia tych zależności. Proces ten zostanie przedstawiony poniżej\cite{Anderson}.
+\subsection{Wyznaczanie położenia charakterystyk}
+\qquad Wyznaczanie charakterystyk sprowadza się do prostej geometrii analitycznej, uzależnionej od tego jaki punkt w przepływie analizujemy - tak zwanego procesu jednostkowego (ang. \textit{unit process}).
+\subsubsection{Punkty wewnątrz przepływu}
+\qquad Jeśli znamy wartości $K_-$ i $K_+$ dla dwóch charakterystyk (oznaczonych odpowiednio 1 i 2), jesteśmy w stanie w prosty sposób określić wartości $\theta$ i $\nu$ leżącego na ich przecięciu. Umożliwiają to wzory:
+\begin{equation}
+	\theta_3+\nu_3=K_{-3}=K_{-1}
+\end{equation}
+\begin{equation}
+	\theta_3-\nu_3=K_{+3}=K_{-+2}
+\end{equation}
+\par Po wykonaniu tego kroku znane są wszystkie niezbędne wartości $\theta$ i $\nu$ w 3 punktach, potrzebne do wyznaczenia położenia punktu 3. Znajduje się ono na przecięciu linii prostych, przybliżających z dużą dokładnością rzeczywisty kształt charakterystyk, których nachylenie zdefiniowane jest jako:
+\begin{equation}
+	\alpha=[0.5(\theta_1+\theta_3)-0.5(\mu_1+\mu_3)]
+\end{equation}
+Dla lewej charakterystyki. Oraz:
+\begin{equation}
+	\alpha=[0.5(\theta_1+\theta_3)+0.5(\mu_1+\mu_3)]
+\end{equation}
+Dla prawej charakterystyki.\\
+\par W równaniach tych pojawia się niewymieniona dotąd wielkość $\mu$. Jest ona wynikową liczby Macha, którą dla każdego punktu można otrzymać z wartości $\nu$ poprzez zastosowanie odwrotnej funkcji Prantla-Meyera. Schemat prezentujący schematyczne wyznaczenie lokalizacji punktu wewnątrz przepływu zaprezentowany został na Rysunku \ref{inflow}.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.7\textwidth]{Photos/PM.png}
+	\caption{Wyznaczanie położenia punktu wewnątrz przepływu \cite{Anderson}}
+	\label{inflow}
+\end{figure}
+\subsubsection{Punkty leżące na ścianie}
+\qquad Proces ten jest tożsamy do wyznaczania położenia punktu wewnątrz przepływu, jednak uproszczony, ponieważ ściana jest ograniczeniem geometrycznym w którym \textit{a priori} znane są wartości $\theta$. Oznacza to, że do wyznaczenia położenia geometrycznego punktu na ściance potrzebujemy jedynie wartości na lewej charakterystyce. Wtedy (numeracja jak w poprzednim podrozdziale):
+\begin{equation}
+	\theta_3+\nu_3=K_{-3}=K_{-1}
+\end{equation}
+\subsubsection{Punkty leżące na fali uderzeniowej}
+\qquad Schemat ten nie jest niezbędny do wyznaczenia zarysu dyszy o minimalnej długości, jednak zostanie tu przytoczony w celu pełnego opisu \textit{unit process}. Postępowanie to jest tożsame do wyznaczania położenia punktu leżącego na ścianie, z tym, że znane są wartości $\theta$ i $\nu$ na fali uderzeniowej (obliczone mogą być z relacji  kąta fali ukośnej oraz liczby Macha w przepływie niezakłóconym).
+\subsection{Metoda charakterystyk w wyznaczaniu kształtu dyszy}
+\qquad Dysza o minimalnej długości to taka dysza w której dochodzi do pełnego rozprężenia gazów bez fal uderzeniowych występujących wewnątrz dyszy. Efekt ten uzyskuje się poprzez skondensowanie obszaru w którym dochodzi do rozprężenia za przekrojem krytycznym do punktu. W punkcie tym następuje ekspansja Prandtla-Meyera, którą opisać można za pomocą charakterystyk.
+\par Przyjmując to założenie wyznaczenie dyszy o minimalnej długości można podzielić na następujące kroki:
+\begin{enumerate}
+	\item Wyznaczenie początkowych charakterystyk ekspansji Prandla-Meyera. Przyjmuje się, że charakterystyki te mają nachylenie od bardzo małej wartości (~0°) do wartości obliczanej ze wzoru:
+	\begin{equation}
+		\theta_e=\frac{\nu_{Me}}{2}
+	\end{equation}
+	\item Wyznaczenie wartości $K_-$, $K_+$, $\theta$, $\nu$ dla każdego punktu leżącego na przecięciu charakterystyk.
+	\item Wyznaczenie położenia geometrycznego punktów leżących na przecięciu charakterystyk.
+	\item Wyznaczenie położenia geometrycznego punktów leżących na ścianie dyszy. Odbywa się to przy założeniu, że punkty te leżą na przecięciu linii będących przedłużeniem prawych charakterystyk z prostymi o nachyleniu $0.5(\theta_a+\theta_b)$, gdzie punkty a i b to kolejne punkty leżące na ścianie dyszy, zaczynając od przekroju krytycznego.
+\end{enumerate}
+\section{Opis programu}
+W ramach programu zdefiniowano szereg funkcji, które zostaną opisane poniżej.
+\subsection{Mach\_angle\_calculator}
+\qquad Funkcja ta jako argumenty przyjmuje liczbę Macha, a zwraca kąt Macha w radianach, zgodnie ze wzorem:
+\begin{equation}
+	\mu=\arcsin(1/M)
+\end{equation}
+\subsection{PM\_fun}
+\qquad Funkcja ta jako argumenty przyjmuje liczbę Macha oraz wykładnik adiabaty gazu, a zwraca kąt Prandtla-Meyera w radianach zgodnie ze wzorem:
+\begin{equation}
+	\nu=\sqrt{\frac{\gamma + 1}{\gamma - 1}}\arctan\!\left(\sqrt{\frac{\gamma - 1}{\gamma + 1}(M^2 - 1)}\right)-\arctan\!\left(\sqrt{M^2 - 1}\right)
+\end{equation}
+\subsection{Hall\_IPM\_fun}
+\qquad Funkcja ta jako argumenty przyjmuje kąt Prandtla-Meyera i wykładnik adiabaty gazu, a zwraca liczbę Macha zgodnie ze wzorem przedstawionym w \cite{hall}.
+\subsection{node\_volume\_finder}
+\qquad Funkcja ta jako argument przyjmuje liczbę charakterystyk, a zwraca liczbę punktów przecięcia charakterystyk w siatce.
+\subsection{kernel\_node\_value\_calculator}
+\qquad Funkcja ta jako argumenty przyjmuje ilość charakterystyk, wartość $\theta$ dla pierwszej charakterystyki, wykładnik adiabaty gazu i projektową liczbę Macha na wylocie z dyszy, a zwraca parametry  $K_-$, $K_+$, $\theta$, $\nu$,$\mu$ i $M$ dla każdego punktu w którym przecinają się charakterystyki.
+\subsection{flow\_point\_finder}
+\qquad Funkcja jako argumenty przyjmuje wartości $\theta$ oraz $\mu$ punktów leżących w przepływie na lewej i prawej charakterystyce, a także położenie geometryczne tych punktów i zwraca położenie punktu leżącego wewnątrz przepływu.
+\subsection{centerline\_point\_finder}
+\qquad Funkcja jako argumenty przyjmuje wartości $\theta$ oraz $\mu$ punktów leżących w przepływie na lewej charakterystyce oraz na osi symetrii, a także położenie geometryczne punktu w przepływie i zwraca położenie punktu leżącego na osi symetrii.
+\subsection{wall\_point\_finder}
+\qquad Funkcja jako argumenty przyjmuje wartości $\theta$ oraz $\mu$ punktów leżących w przepływie na prawej charakterystyce oraz na ściance dyszy, a także położenie geometryczne punktu w przepływie i na ściance dyszy, a zwraca położenie kolejnego punktu leżącego na dyszy.
+\subsection{point\_location\_finder}
+\qquad Funkcja jako argumenty przyjmuje liczbę charakterystyk, projektową liczbę Macha na wylocie z dyszy, wartości otrzymane z funkcji kernel\_node\_value\_calculator, a także wartości bool określające sposób tworzenia wykresu. Wewnątrz funkcji obliczane są współrzędne geometryczne wszystkich istotnych punktów w przepływie, a zwracany jest wykres prezentujący kształt dyszy oraz współrzędne punktów na jej obrysie.
+\subsection{Inicjalizacja programu}
+\qquad Program inicjalizowany jest liczbą charakterystyk, projektową liczbą Macha na wylocie z dyszy, współczynnikiem adiabaty gazu oraz początkowym kątem odchylenia pierwszej charakterystyki. Następnie wywoływana jest funkcja point\_location\_finder a jej output zapisywany jest do pliku csv.
+\section{Wyniki}
+\qquad Obliczenia przeprowadzono dla wartości zaprezentowanych w Tabeli \ref{tab}. 
+\begin{table}[h!]
+	\centering
+	\caption{Wartości inicjalizujące program}
+	\label{tab}
+	\begin{tabular}{|c|c|c|}
+		\hline
+		Wartość               & Wielkość & Jednostka \\ \hline
+		Liczba charakterystyk & 50       & -         \\ \hline
+		$\gamma$              & 1.4      & -         \\ \hline
+		$M_e$                 & 2.4      & -         \\ \hline
+		$\theta_{start}$      & 0.375    & °         \\ \hline
+	\end{tabular}
+\end{table}
+Otrzymany wykres przedstawiający kształt dyszy o minimalnej długości przedstawiono na Rysunku \ref{MOC}. 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1\textwidth]{Photos/plot.png}
+	\caption{Kształt dyszy o minimalnej długości wyznaczonej za pomocą metody charakterystyk}
+	\label{MOC}
+\end{figure}
+Obliczone wartości porównano z przykładem przedstawionym w \cite{Anderson}. Osiągnięto wysoki poziom zgodności wyników.
+\section{Podsumowanie}
+\qquad Zaprezentowano program pozwalający na wyznaczenie konturu dyszy o minimalnej długości wykorzystującego metodę charakterystyk. Program pozwala na wyznaczenie konturu dla dowolnej liczby Macha, wykładnika adiabaty i liczby charakterystyk. Opisywany program pozwala na wyznaczenie konturu dyszy płaskiej, co ogranicza jego zastosowanie jedynie do celów dydaktycznych oraz stanowi punkt wyjściowy do stworzenia programu wykorzystującego metodę charakterystyk dla 3 wymiarów.
+\input{Bibliography.tex}
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+\end{document}
